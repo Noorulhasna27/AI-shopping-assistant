@@ -21,7 +21,7 @@ def ram_gb(t):
     return int(m.group(1)) if m else None
 
 def storage(t):
-    m = first(r"(\d+(?:\.\d+)?)\s?(TB|GB)\s*(?:PCIe\s*|NVMe\s*|M\.2\s*|SATA\s*|Gen\d\s*)*(SSD|HDD)", t)
+            m = first(r"(\d+(?:\.\d+)?)\s?(TB|GB)\s*(?:PCIe\s*|NVMe\s*|M\.2\s*|SATA\s*|SSD\s*)*Storage", t)
     if not m:
         m = first(r"(\d+(?:\.\d+)?)\s?(TB|GB)\s*Storage", t)
         if not m:
@@ -66,15 +66,19 @@ def text_of(x):
 rows = []
 for i, row in enumerate(p.itertuples(index=False), start=1):
     t = row.title
-    st_gb, st_type = storage(t)
     desc = (text_of(row.features) + " " + text_of(row.description)).strip()[:1500]
+    st_gb, st_type = storage(t)
+    if st_gb is None:
+        st_gb, st_type = storage(desc)
     rows.append(dict(
         id=i, asin=row.parent_asin, name=t, brand=brand_of(t, row.store),
         price=float(row.price), rating=row.average_rating,
         rating_count=int(row.rating_number) if pd.notna(row.rating_number) else None,
-        ram_gb=ram_gb(t), storage_gb=st_gb, storage_type=st_type, cpu=cpu(t),
-        gpu=gpu(t), screen_in=screen(t), refresh_hz=refresh(t), os=os_of(t),
-        description=desc))
+        ram_gb=ram_gb(t) or ram_gb(desc), storage_gb=st_gb, storage_type=st_type,
+        cpu=cpu(t) or cpu(desc), gpu=gpu(t) or gpu(desc),
+        screen_in=screen(t) or screen(desc),
+        refresh_hz=refresh(t) or refresh(desc),
+        os=os_of(t) or os_of(desc), description=desc))
 prod = pd.DataFrame(rows)
 
 asin_to_id = dict(zip(prod["asin"], prod["id"]))
