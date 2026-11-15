@@ -93,6 +93,7 @@ def run(plan, memory, chosen=None):
     if plan.intent == "recommend":
         return _recommend(plan, budget, brand)
     ids, needs_choice, not_found = resolve(plan.product_mentions, chosen)
+    ids = list(dict.fromkeys(ids))
     if not_found:
         return {"error": "I couldn't find these in the catalog: " + ", ".join(not_found)
                          + ". Try the brand and model, e.g. 'Razer Blade 15'."}

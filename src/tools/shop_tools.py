@@ -60,7 +60,7 @@ SPEC_COLS = ["name", "brand", "price", "rating", "rating_count", "ram_gb",
 def compare(product_ids):
     prod = _data()[0].set_index("id")
     missing = [i for i in product_ids if i not in prod.index]
-    ids = [i for i in product_ids if i in prod.index]
+    ids = [i for i in dict.fromkeys(product_ids) if i in prod.index]
     sel = prod.loc[ids]
     table = {c: {int(i): (_py(sel.loc[i, c]) if _ok(sel.loc[i, c]) else NA) for i in ids}
              for c in SPEC_COLS}
