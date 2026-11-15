@@ -9,16 +9,22 @@ DB_PATH = "data/shop.db"
 NA = "not available"
 
 
-# ---------- loading ----------
 @lru_cache(maxsize=1)
 def _model():
-    from sentence_transformers import SentenceTransformer
-    return SentenceTransformer("all-MiniLM-L6-v2")
+    try:  # light ONNX runtime, no torch needed (used when deployed)
+        from fastembed import TextEmbedding
+        return ("fast", TextEmbedding("sentence-transformers/all-MiniLM-L6-v2"))
+    except ImportError:
+        from sentence_transformers import SentenceTransformer
+        return ("st", SentenceTransformer("all-MiniLM-L6-v2"))
 
 
 def embed(text):
-    return _model().encode([text], normalize_embeddings=True)[0]
-
+    kind, m = _model()
+    if kind == "fast":
+        v = np.asarray(next(iter(m.embed([text]))), dtype="float32")
+        return v / np.linalg.norm(v)
+    return m.encode([text], normalize_embeddings=True)[0]
 
 @lru_cache(maxsize=1)
 def _data():

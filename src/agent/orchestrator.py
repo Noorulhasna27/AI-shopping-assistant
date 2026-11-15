@@ -1,14 +1,7 @@
-import os
-
-from dotenv import load_dotenv
-from google import genai
 from google.genai import types
 
+from src.agent.llm import ROUTER_MODELS, generate
 from src.agent.schemas import Plan
-
-load_dotenv()
-client = genai.Client()
-ROUTER_MODEL = os.getenv("ROUTER_MODEL", "gemini-3.5-flash-lite")
 
 SYSTEM = """You are the planner for a laptop shopping assistant.
 Read the user's message and return a JSON plan. Do not answer the question.
@@ -25,8 +18,10 @@ Rules:
 - product_mentions: laptop names exactly as the user wrote them. Never invent names.
 - aspects: short words such as battery, display, keyboard, fans, noise, performance, build.
 - All catalog prices are in US dollars. max_price is a number in USD.
-  If the user gives a budget in another currency, use intent clarify and ask
-  for the budget in USD.
+  The app converts any rupee amount the user types into US dollars before you
+  see it, so treat every budget in the message as USD. Never ask the user to
+  give a budget in dollars or in any particular currency.
+  A budget is optional: if it is missing, leave max_price null and plan normally.
 - Use saved preferences (budget, brand, use case) when the message does not
   override them.
 - Unused fields: empty list or null.
@@ -35,10 +30,10 @@ Rules:
 
 def make_plan(question, memory=None):
     prefs = memory if memory else "none"
-    resp = client.models.generate_content(
-        model=ROUTER_MODEL,
-        contents=f"Saved preferences: {prefs}\nUser message: {question}",
-        config=types.GenerateContentConfig(
+    resp = generate(
+        ROUTER_MODELS,
+        f"Saved preferences: {prefs}\nUser message: {question}",
+        types.GenerateContentConfig(
             system_instruction=SYSTEM,
             response_mime_type="application/json",
             response_schema=Plan,

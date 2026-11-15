@@ -1,14 +1,9 @@
 import json
-import os
 import re
 
-from dotenv import load_dotenv
-from google import genai
 from google.genai import types
 
-load_dotenv()
-client = genai.Client()
-ANSWER_MODEL = os.getenv("ANSWER_MODEL", "gemini-3.5-flash")
+from src.agent.llm import ANSWER_MODELS, generate
 
 SYSTEM = """You are a laptop shopping assistant. Answer using ONLY the EVIDENCE JSON.
 Rules:
@@ -27,9 +22,8 @@ Rules:
 def write_answer(question, evidence, memory):
     prompt = (f"User question: {question}\nSaved preferences: {memory or 'none'}\n"
               f"EVIDENCE:\n{json.dumps(evidence, default=str)}")
-    resp = client.models.generate_content(
-        model=ANSWER_MODEL, contents=prompt,
-        config=types.GenerateContentConfig(system_instruction=SYSTEM, temperature=0.2))
+    resp = generate(ANSWER_MODELS, prompt,
+                    types.GenerateContentConfig(system_instruction=SYSTEM, temperature=0.2))
     return resp.text
 
 
