@@ -16,9 +16,9 @@ def _chain(single_var, list_var, default):
 # Cheap, fast models plan the request; stronger ones write the answer.
 # If one model's free quota is used up, the next one in the list is tried.
 ROUTER_MODELS = _chain("ROUTER_MODEL", "ROUTER_MODELS",
-                       "gemini-3.5-flash-lite,gemini-2.5-flash-lite,gemini-3.1-flash-lite")
+                       "gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.6-flash")
 ANSWER_MODELS = _chain("ANSWER_MODEL", "ANSWER_MODELS",
-                       "gemini-3.5-flash,gemini-2.5-flash,gemini-3.5-flash-lite,gemini-2.5-flash-lite")
+                       "gemini-3.5-flash,gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash,gemini-3.5-flash-lite")
 
 _CACHE = {}  # identical prompts are answered from memory: saves free-tier quota
 
