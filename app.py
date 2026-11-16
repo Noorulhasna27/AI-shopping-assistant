@@ -9,12 +9,17 @@ import streamlit as st
 
 from src.agent.pipeline import handle
 
-st.set_page_config(page_title="Your Laptop Finder AI", page_icon="💻", layout="wide")
+st.set_page_config(page_title="Laptop Shopping Assistant", page_icon="💻", layout="wide")
 
+# ---------------------------------------------------------------------------
+# Currency: the data is in USD, the app shows rupees.
+# Update USD_TO_INR whenever you want a fresher rate.
+# ---------------------------------------------------------------------------
 USD_TO_INR = 95
 
+# Saved laptops can be stored in this file so they survive a page refresh.
+# Keep PERSIST_SHORTLIST = False on the public site: the file would be shared by every visitor.
 SHORTLIST_FILE = Path(__file__).parent / "shortlist.json"
-
 PERSIST_SHORTLIST = False
 
 
@@ -109,8 +114,7 @@ CSS = """
 
 /* Hero */
 .hero { text-align: center; padding: 6px 0 22px 0; }
-.eyebrow { display: inline-block; background: var(--accent-soft); color: var(--accent); border: 1px solid #D6D4FA; border-radius: 999px; padding: 4px 14px; font-size: .7rem; font-weight: 800; letter-spacing: .12em; }
-.hero h1 { font-size: 2.7rem; font-weight: 800; color: var(--ink); letter-spacing: -0.03em; margin: 14px 0 8px 0; line-height: 1.1; }
+.hero h1 { font-size: 2.7rem; font-weight: 800; color: var(--ink); letter-spacing: -0.03em; margin: 6px 0 8px 0; line-height: 1.1; }
 .hero p { color: var(--muted); font-size: 1.05rem; max-width: 640px; margin: 0 auto; line-height: 1.55; }
 .trust { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-top: 16px; color: var(--muted); font-size: .82rem; font-weight: 600; }
 .trust span::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 8px; vertical-align: middle; }
@@ -156,6 +160,10 @@ EXAMPLES = [
     "Cheaper alternatives to the Razer Blade 15 under ₹140000",
 ]
 
+
+# ---------------------------------------------------------------------------
+# Shortlist storage
+# ---------------------------------------------------------------------------
 def load_shortlist():
     if not PERSIST_SHORTLIST:
         return {}
@@ -172,7 +180,8 @@ def persist_shortlist():
     try:
         SHORTLIST_FILE.write_text(json.dumps(ss.shortlist, indent=2), encoding="utf-8")
     except Exception:
-        pass
+        pass  # saving to disk is a convenience; the session copy still works
+
 
 ss = st.session_state
 ss.setdefault("messages", [{"role": "assistant", "result": {"type": "text", "text": WELCOME}}])
@@ -264,7 +273,7 @@ def product_cards(ev, idx):
             html_card = card(a["name"][:70], a["price"], a["rating"],
                              [chip(w, "mint") for w in why],
                              f"{int(a['similarity'] * 100)}% similarity match", rank=n)
-            item = {"name": a["name"][:70], "price": a["price"],
+            item = {"name": f"#{a['id']} {a['name'][:66]}", "price": a["price"],
                     "rating": a["rating"], "details": ", ".join(why)}
             entries.append((html_card, item))
     elif "comparison" in ev:
@@ -278,7 +287,7 @@ def product_cards(ev, idx):
                     tags.append((f"{fmt(v)} {label}".strip(), color))
             html_card = card(name[:70], sp["price"][pid], sp["rating"][pid],
                              [chip(t, c) for t, c in tags], rank=n)
-            item = {"name": name[:70], "price": sp["price"][pid],
+            item = {"name": f"#{pid} {name[:66]}", "price": sp["price"][pid],
                     "rating": sp["rating"][pid], "details": ", ".join(t for t, _ in tags)}
             entries.append((html_card, item))
     if entries:
@@ -331,12 +340,10 @@ with st.sidebar:
 
 st.markdown(
     '<div class="hero">'
-    '<span class="eyebrow">AI SHOPPING ASSISTANT</span>'
-    '<h1>Your Laptop Finder AI</h1>'
+    '<h1>Laptop Shopping Assistant</h1>'
     '<p>Share your budget and what you need. Get ranked recommendations backed by '
     'verified specifications and real customer reviews.</p>'
-    '<div class="trust"><span>Verified specs</span><span>Real customer reviews</span>'
-    '<span>Prices in INR</span></div>'
+    '<div class="trust"><span>Verified specs</span><span>Real customer reviews</span></div>'
     '</div>',
     unsafe_allow_html=True,
 )
@@ -368,8 +375,6 @@ with prefs_box:
         st.markdown("".join(chips), unsafe_allow_html=True)
     else:
         st.caption("No preferences captured yet. Mention a budget, brand, or use case.")
-    st.markdown(f'<div class="side-note">Prices are shown in ₹, converted at ₹{USD_TO_INR} per US dollar.</div>',
-                unsafe_allow_html=True)
     if st.button("Reset conversation"):
         ss.memory = {}
         ss.pending = None

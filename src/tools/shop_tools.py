@@ -9,6 +9,7 @@ DB_PATH = "data/shop.db"
 NA = "not available"
 
 
+# ---------- loading ----------
 @lru_cache(maxsize=1)
 def _model():
     try:  # light ONNX runtime, no torch needed (used when deployed)
@@ -25,6 +26,7 @@ def embed(text):
         v = np.asarray(next(iter(m.embed([text]))), dtype="float32")
         return v / np.linalg.norm(v)
     return m.encode([text], normalize_embeddings=True)[0]
+
 
 @lru_cache(maxsize=1)
 def _data():
@@ -119,6 +121,13 @@ def _why(base, alt):
     return why
 
 
+def _same_config(base, alt):
+    """True when two listings have the same key specs (near-duplicate listings)."""
+    cols = ["brand", "cpu", "gpu", "ram_gb", "storage_gb", "screen_in"]
+    return all((base[c] == alt[c]) or (not _ok(base[c]) and not _ok(alt[c]))
+               for c in cols)
+
+
 def find_alternatives(product_id, max_price=None, min_rating=None,
                       same_brand_only=False, k=5):
     prod, _, _, prod_emb = _data()
@@ -131,6 +140,8 @@ def find_alternatives(product_id, max_price=None, min_rating=None,
     for i in np.argsort(-sims):
         a = prod.iloc[i]
         if a["id"] == product_id:
+            continue
+        if _same_config(base, a):
             continue
         if max_price is not None and a["price"] > max_price:
             continue
@@ -151,10 +162,10 @@ if __name__ == "__main__":
     import json
     print("lookup 'legion 5':")
     print(lookup("legion 5")[["id", "name"]].to_string())
-    c = compare([1, 2, 3])
-    print("\ncompare 1,2,3 highlights:", json.dumps(c["highlights"]))
-    for col in ("price", "ram_gb", "gpu"):
-        print(" ", col, c["specs"][col])
+    print("\ncompare 1,2,3:")
+    print(json.dumps(compare([1, 2, 3])["highlights"], indent=1))
+    print(json.dumps({k: v for k, v in compare([1, 2, 3])["specs"].items()
+                      if k in ("price", "ram_gb", "gpu")}, indent=1))
     print("\nreviews about battery for product 1:")
     for m in search_reviews("battery life", product_id=1, k=3)["matches"]:
         print(" ", m["score"], m["stars"], m["text"][:120])

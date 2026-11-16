@@ -1,10 +1,17 @@
+from dotenv import load_dotenv
 import os
 
-from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 
 load_dotenv()
-client = genai.Client()
+
+try:
+    _http = types.HttpOptions(timeout=40_000,
+                              retry_options=types.HttpRetryOptions(attempts=1))
+    client = genai.Client(http_options=_http)
+except Exception:
+    client = genai.Client()
 
 
 def _chain(single_var, list_var, default):
