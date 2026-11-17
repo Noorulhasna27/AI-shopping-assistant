@@ -1,6 +1,6 @@
 # Laptop Shopping Assistant
 
-An AI shopping assistant that helps people choose a laptop: it **compares** models, **reads what real customers say**, and **finds alternatives** that match a budget and a use case. Every price and every quoted review in an answer is checked against the data before it reaches the user. Users type budgets and read prices in **Indian rupees (₹)**.
+An AI shopping assistant that helps people choose a laptop: it **compares** models, **reads what real customers say**, and **finds alternatives** that match a budget and a use case. Every price and every quoted review in an answer is checked against the data before it reaches the user.
 
 - **Live app:** https://ai-shopping-assistant-26.streamlit.app/
 - **Category:** gaming laptops (80 products, about 3,200 customer reviews)
@@ -81,7 +81,6 @@ Run with `python eval/run_eval.py` (results in `eval/results.md`).
 ## Limitations
 
 - **Prices are US dollars from Amazon US listings, shown in rupees at a fixed rate.** The rate is ₹95 per dollar, set in `app.py`, and is not a live exchange rate. Prices are also a snapshot in time and differ from what Indian stores charge, so treat the rupee figures as a guide.
-- **Reviews are a sample.** Each laptop keeps its most helpful reviews (about 40), so review statistics in the database are not the product's true overall rating.
 - **Memory lasts one visit.** Preferences and the shortlist are kept during a session, not across visits.
 - **Free-tier AI quota.** The app uses Gemini's free tier; if every model is out of quota, it says so instead of failing silently.
 
