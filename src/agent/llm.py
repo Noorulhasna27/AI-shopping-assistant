@@ -27,7 +27,7 @@ ROUTER_MODELS = _chain("ROUTER_MODEL", "ROUTER_MODELS",
 ANSWER_MODELS = _chain("ANSWER_MODEL", "ANSWER_MODELS",
                        "gemini-3.5-flash,gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash,gemini-3.5-flash-lite")
 
-_CACHE = {}  # identical prompts are answered from memory: saves free-tier quota
+_CACHE = {} 
 
 
 def generate(models, contents, config):

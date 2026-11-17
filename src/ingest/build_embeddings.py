@@ -13,7 +13,6 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 rev_text = (rev["title"].fillna("") + ". " + rev["text"]).str.slice(0, 1000).tolist()
 rev_emb = model.encode(rev_text, batch_size=64, normalize_embeddings=True,
                        show_progress_bar=True).astype("float32")
-
 # Products (name + key specs + description)
 def product_text(r):
     parts = [r["name"]]
@@ -38,10 +37,7 @@ from src.agent.pipeline import handle
 
 st.set_page_config(page_title="Laptop Buddy", page_icon="🧸", layout="wide")
 
-# ---------------------------------------------------------------------------
-# Currency: the data is in USD, the app shows rupees.
-# Update USD_TO_INR whenever you want a fresher rate.
-# ---------------------------------------------------------------------------
+
 USD_TO_INR = 95
 
 
@@ -272,10 +268,6 @@ from src.agent.pipeline import handle
 
 st.set_page_config(page_title="Laptop Buddy", page_icon="🧸", layout="wide")
 
-# ---------------------------------------------------------------------------
-# Currency: the data is in USD, the app shows rupees.
-# Update USD_TO_INR whenever you want a fresher rate.
-# ---------------------------------------------------------------------------
 USD_TO_INR = 95
 
 

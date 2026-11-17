@@ -9,10 +9,10 @@ DB_PATH = "data/shop.db"
 NA = "not available"
 
 
-# ---------- loading ----------
+# loading 
 @lru_cache(maxsize=1)
 def _model():
-    try:  # light ONNX runtime, no torch needed (used when deployed)
+    try:  
         from fastembed import TextEmbedding
         return ("fast", TextEmbedding("sentence-transformers/all-MiniLM-L6-v2"))
     except ImportError:
@@ -157,7 +157,7 @@ def find_alternatives(product_id, max_price=None, min_rating=None,
     return {"base_id": product_id, "alternatives": out}
 
 
-# ---------- manual test ----------
+
 if __name__ == "__main__":
     import json
     print("lookup 'legion 5':")

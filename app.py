@@ -11,14 +11,8 @@ from src.agent.pipeline import handle
 
 st.set_page_config(page_title="Laptop Shopping Assistant", page_icon="💻", layout="wide")
 
-# ---------------------------------------------------------------------------
-# Currency: the data is in USD, the app shows rupees.
-# Update USD_TO_INR whenever you want a fresher rate.
-# ---------------------------------------------------------------------------
 USD_TO_INR = 95
 
-# Saved laptops can be stored in this file so they survive a page refresh.
-# Keep PERSIST_SHORTLIST = False on the public site: the file would be shared by every visitor.
 SHORTLIST_FILE = Path(__file__).parent / "shortlist.json"
 PERSIST_SHORTLIST = False
 
@@ -161,9 +155,6 @@ EXAMPLES = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Shortlist storage
-# ---------------------------------------------------------------------------
 def load_shortlist():
     if not PERSIST_SHORTLIST:
         return {}
@@ -180,7 +171,7 @@ def persist_shortlist():
     try:
         SHORTLIST_FILE.write_text(json.dumps(ss.shortlist, indent=2), encoding="utf-8")
     except Exception:
-        pass  # saving to disk is a convenience; the session copy still works
+        pass 
 
 
 ss = st.session_state
@@ -221,9 +212,6 @@ def save_note(name):
         persist_shortlist()
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 def collect_reviews(obj, found=None):
     found = {} if found is None else found
     if isinstance(obj, dict):
@@ -331,9 +319,8 @@ def respond(question, chosen=None, plan=None):
         ss.messages.append({"role": "assistant", "result": r})
 
 
-# ---------------------------------------------------------------------------
 # Page layout
-# ---------------------------------------------------------------------------
+
 with st.sidebar:
     prefs_box = st.container()
     short_box = st.container()
