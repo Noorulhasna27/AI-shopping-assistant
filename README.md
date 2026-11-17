@@ -74,9 +74,9 @@ Run with `python eval/run_eval.py` (results in `eval/results.md`).
 | Tool rules (budget respected, brand filter, no self or duplicate alternatives, unknown product gives an error, ambiguous name asks the user) | **13 / 13** passed |
 | Planner: correct intent, budget, brand and aspects (12 hand-written questions) | **12 / 12**, average 1.3 s |
 | Full answers: every citation and price matches the data (3 end-to-end questions) | **3 / 3** grounded, 3.0 review citations per answer on average, 10.2 s end to end |
-| Spec extraction accuracy (15 random laptops checked by hand) | **__ / 15** |
 
-Weakest area: reviews about "value for money" (1 of 5 retrieved reviews matched the keyword check), because people describe value in many different ways.
+
+
 
 ## Limitations
 
